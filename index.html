@@ -645,6 +645,10 @@ function deletePlaythrough(playthroughId) {
     return playthrough.id !== playthroughId;
   });
 
+game.playthroughs.forEach(function(playthrough, index) {
+  playthrough.number = index + 1;
+});
+  
   localStorage.setItem("games", JSON.stringify(games));
 
   displayPlaythroughs(game);
