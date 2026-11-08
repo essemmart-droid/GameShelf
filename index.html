@@ -205,6 +205,19 @@ select {
   if (!game.status) {
     game.status = "playing";
   }
+
+  if (!game.playthroughs) {
+    game.playthroughs = [
+      {
+        id: crypto.randomUUID(),
+        number: 1,
+        status: game.status,
+        startedDate: null,
+        endedDate: null,
+        sessions: []
+      }
+    ];
+  }
 });
 
 localStorage.setItem("games", JSON.stringify(games));
@@ -522,7 +535,17 @@ function saveGame() {
   price: price,
   hours: hours,
   completionHours: completionHours,
-  status: status
+  status: status,
+  playthroughs: [
+    {
+      id: crypto.randomUUID(),
+      number: 1,
+      status: status,
+      startedDate: null,
+      endedDate: null,
+      sessions: []
+    }
+  ]
 };
 
     games.push(game);
