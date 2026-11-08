@@ -125,9 +125,11 @@ input {
     localStorage.setItem("games", JSON.stringify(games));
 
     displayGame(game);
+    updateSummary();
   }
 
   games.forEach(displayGame);
+  updateSummary();
 </script>
 
   
