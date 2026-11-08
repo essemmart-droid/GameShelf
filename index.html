@@ -54,7 +54,7 @@ input {
 
 
   
-  <div class="summary-card">
+<div class="summary-card" id="library-view">
     <h2>My Library</h2>
     <p id="game-count">0 games</p>
 <p id="total-hours">0 hours played</p>
@@ -75,6 +75,19 @@ input {
 <button class="add-game-button" onclick="addGame()">+ Add Game</button>
 <div id="game-list"></div>
   </div>
+  
+  <div class="summary-card" id="details-view" style="display: none;">
+  <button onclick="showLibrary()">← Back to Library</button>
+
+  <h2 id="details-title"></h2>
+
+  <p id="details-price"></p>
+  <p id="details-hours"></p>
+  <p id="details-completion"></p>
+  <p id="details-current-cost"></p>
+  <p id="details-potential-cost"></p>
+</div>
+  
 </body>
 
 
@@ -151,13 +164,43 @@ document.getElementById("potential-cost").textContent =
     `;
   }
 
+function showLibrary() {
+  document.getElementById("details-view").style.display = "none";
+  document.getElementById("library-view").style.display = "block";
+}
+  
   function openGame(gameId) {
   const game = games.find(function(game) {
     return game.id === gameId;
   });
 
-  alert("You opened " + game.title);
+  let currentCost = "Not played yet";
+  let potentialCost = "Unknown";
+
+  if (game.hours > 0) {
+    currentCost = "$" + (game.price / game.hours).toFixed(2) + "/hr";
+  }
+
+  if (game.completionHours > 0) {
+    potentialCost = "$" + (game.price / game.completionHours).toFixed(2) + "/hr";
+  }
+
+  document.getElementById("details-title").textContent = game.title;
+  document.getElementById("details-price").textContent =
+    "Purchase price: $" + game.price.toFixed(2);
+  document.getElementById("details-hours").textContent =
+    "Hours played: " + game.hours;
+  document.getElementById("details-completion").textContent =
+    "Estimated 100% time: " + game.completionHours + " hours";
+  document.getElementById("details-current-cost").textContent =
+    "Current cost per hour: " + currentCost;
+  document.getElementById("details-potential-cost").textContent =
+    "Potential cost per hour: " + potentialCost;
+
+  document.getElementById("library-view").style.display = "none";
+  document.getElementById("details-view").style.display = "block";
 }
+  
   function addGame() {
     const title = document.getElementById("game-title").value;
     const price = Number(document.getElementById("purchase-price").value);
