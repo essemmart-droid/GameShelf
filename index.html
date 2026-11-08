@@ -64,46 +64,57 @@ input {
 </body>
 
   <script>
-      const games = [];
+<script>
+  let games = JSON.parse(localStorage.getItem("games")) || [];
+
+  function displayGame(game) {
+    const gameList = document.getElementById("game-list");
+
+    let currentCost = "Not played yet";
+    let potentialCost = "Unknown";
+
+    if (game.hours > 0) {
+      currentCost = "$" + (game.price / game.hours).toFixed(2) + "/hr";
+    }
+
+    if (game.completionHours > 0) {
+      potentialCost = "$" + (game.price / game.completionHours).toFixed(2) + "/hr";
+    }
+
+    gameList.innerHTML += `
+      <div>
+        <h3>${game.title}</h3>
+        <p>Purchase price: $${game.price.toFixed(2)}</p>
+        <p>Hours played: ${game.hours}</p>
+        <p>Estimated 100% time: ${game.completionHours} hours</p>
+        <p>Current cost per hour: ${currentCost}</p>
+        <p>Potential cost per hour: ${potentialCost}</p>
+      </div>
+    `;
+  }
+
   function addGame() {
-  const title = document.getElementById("game-title").value;
-  const price = Number(document.getElementById("purchase-price").value);
-  const hours = Number(document.getElementById("hours-played").value);
-  const completionHours = Number(document.getElementById("completion-hours").value);
-const game = {
-  title: title,
-  price: price,
-  hours: hours,
-  completionHours: completionHours
-};
+    const title = document.getElementById("game-title").value;
+    const price = Number(document.getElementById("purchase-price").value);
+    const hours = Number(document.getElementById("hours-played").value);
+    const completionHours = Number(document.getElementById("completion-hours").value);
+
+    const game = {
+      title: title,
+      price: price,
+      hours: hours,
+      completionHours: completionHours
+    };
+
     games.push(game);
-    
-localStorage.setItem("games", JSON.stringify(games));
-    
-  const gameList = document.getElementById("game-list");
 
-  let currentCost = "Not played yet";
-  let potentialCost = "Unknown";
+    localStorage.setItem("games", JSON.stringify(games));
 
-  if (hours > 0) {
-    currentCost = "$" + (price / hours).toFixed(2) + "/hr";
+    displayGame(game);
   }
 
-  if (completionHours > 0) {
-    potentialCost = "$" + (price / completionHours).toFixed(2) + "/hr";
-  }
-
-  gameList.innerHTML += `
-    <div>
-      <h3>${game.title}</h3>
-      <p>Purchase price: $${price.toFixed(2)}</p>
-      <p>Hours played: ${hours}</p>
-      <p>Estimated 100% time: ${completionHours} hours</p>
-      <p>Current cost per hour: ${currentCost}</p>
-      <p>Potential cost per hour: ${potentialCost}</p>
-    </div>
-  `;
-}
+  games.forEach(displayGame);
+</script>
 
   
   </script>
