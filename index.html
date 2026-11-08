@@ -158,6 +158,9 @@ select {
   <p id="details-current-cost"></p>
   <p id="details-potential-cost"></p>
 
+<h3>Playthroughs</h3>
+<div id="playthrough-list"></div>
+    
     <button class="add-game-button" onclick="editGame()">Edit Game</button>
     
 </div>
@@ -447,6 +450,35 @@ function showLibrary() {
   document.getElementById("details-view").style.display = "none";
   document.getElementById("library-view").style.display = "block";
 }
+
+function displayPlaythroughs(game) {
+  const playthroughList = document.getElementById("playthrough-list");
+
+  playthroughList.innerHTML = "";
+
+  game.playthroughs.forEach(function(playthrough) {
+    let startDate = "Not recorded";
+    let endDate = "Not recorded";
+
+    if (playthrough.startedDate) {
+      startDate = playthrough.startedDate;
+    }
+
+    if (playthrough.endedDate) {
+      endDate = playthrough.endedDate;
+    }
+
+    playthroughList.innerHTML += `
+      <div>
+        <h4>Playthrough ${playthrough.number}</h4>
+        <p>Status: ${formatStatus(playthrough.status)}</p>
+        <p>Started: ${startDate}</p>
+        <p>Ended: ${endDate}</p>
+        <p>Logged sessions: ${playthrough.sessions.length}</p>
+      </div>
+    `;
+  });
+}
   
   function openGame(gameId) {
     selectedGameId = gameId;
@@ -479,6 +511,8 @@ function showLibrary() {
   document.getElementById("details-potential-cost").textContent =
     "Potential cost per hour: " + potentialCost;
 
+displayPlaythroughs(game);
+    
   document.getElementById("library-view").style.display = "none";
   document.getElementById("details-view").style.display = "block";
 }
