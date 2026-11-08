@@ -86,6 +86,28 @@ input {
   <p id="details-completion"></p>
   <p id="details-current-cost"></p>
   <p id="details-potential-cost"></p>
+
+    <button class="add-game-button" onclick="editGame()">Edit Game</button>
+    
+</div>
+
+  <div class="summary-card" id="edit-view" style="display: none;">
+  <h2>Edit Game</h2>
+
+  <label for="edit-title">Title</label>
+  <input type="text" id="edit-title">
+
+  <label for="edit-price">Purchase price</label>
+  <input type="number" id="edit-price" step="0.01">
+
+  <label for="edit-hours">Hours played</label>
+  <input type="number" id="edit-hours" step="0.1">
+
+  <label for="edit-completion-hours">Estimated hours to 100%</label>
+  <input type="number" id="edit-completion-hours" step="0.1">
+
+  <button class="add-game-button" onclick="saveGame()">Save Changes</button>
+  <button onclick="cancelEdit()">Cancel</button>
 </div>
   
 </body>
@@ -93,6 +115,7 @@ input {
 
 <script>
   let games = JSON.parse(localStorage.getItem("games")) || [];
+  let selectedGameId = null;
   games.forEach(function(game) {
   if (!game.id) {
     game.id = crypto.randomUUID();
@@ -170,6 +193,7 @@ function showLibrary() {
 }
   
   function openGame(gameId) {
+    selectedGameId = gameId;
   const game = games.find(function(game) {
     return game.id === gameId;
   });
@@ -199,6 +223,42 @@ function showLibrary() {
 
   document.getElementById("library-view").style.display = "none";
   document.getElementById("details-view").style.display = "block";
+}
+
+function editGame() {
+  const game = games.find(function(game) {
+    return game.id === selectedGameId;
+  });
+
+  document.getElementById("edit-title").value = game.title;
+  document.getElementById("edit-price").value = game.price;
+  document.getElementById("edit-hours").value = game.hours;
+  document.getElementById("edit-completion-hours").value = game.completionHours;
+
+  document.getElementById("details-view").style.display = "none";
+  document.getElementById("edit-view").style.display = "block";
+}
+
+function cancelEdit() {
+  document.getElementById("edit-view").style.display = "none";
+  document.getElementById("details-view").style.display = "block";
+}
+
+function saveGame() {
+  const game = games.find(function(game) {
+    return game.id === selectedGameId;
+  });
+
+  game.title = document.getElementById("edit-title").value;
+  game.price = Number(document.getElementById("edit-price").value);
+  game.hours = Number(document.getElementById("edit-hours").value);
+  game.completionHours = Number(
+    document.getElementById("edit-completion-hours").value
+  );
+
+  localStorage.setItem("games", JSON.stringify(games));
+
+  location.reload();
 }
   
   function addGame() {
