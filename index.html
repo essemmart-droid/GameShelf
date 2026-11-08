@@ -115,6 +115,16 @@ select {
   <label for="completion-hours">Estimated hours to 100%</label>
   <input type="number" id="completion-hours" placeholder="0" step="0.1">
 
+<label for="game-status">Status</label>
+<select id="game-status">
+  <option value="playing">Playing</option>
+  <option value="paused">Paused</option>
+  <option value="dropped">Dropped</option>
+  <option value="finished">Finished</option>
+  <option value="completed">100%</option>
+</select>
+
+  
   <button class="add-game-button" onclick="addGame()">Save Game</button>
   <button onclick="cancelAddGame()">Cancel</button>
 </div>
@@ -127,6 +137,7 @@ select {
   <p id="details-price"></p>
   <p id="details-hours"></p>
   <p id="details-completion"></p>
+    <p id="details-status"></p>
   <p id="details-current-cost"></p>
   <p id="details-potential-cost"></p>
 
@@ -149,6 +160,15 @@ select {
   <label for="edit-completion-hours">Estimated hours to 100%</label>
   <input type="number" id="edit-completion-hours" step="0.1">
 
+<label for="edit-status">Status</label>
+<select id="edit-status">
+  <option value="playing">Playing</option>
+  <option value="paused">Paused</option>
+  <option value="dropped">Dropped</option>
+  <option value="finished">Finished</option>
+  <option value="completed">100%</option>
+</select>
+    
   <button class="add-game-button" onclick="saveGame()">Save Changes</button>
   <button onclick="cancelEdit()">Cancel</button>
 </div>
@@ -162,6 +182,10 @@ select {
   games.forEach(function(game) {
   if (!game.id) {
     game.id = crypto.randomUUID();
+  }
+
+  if (!game.status) {
+    game.status = "playing";
   }
 });
 
@@ -374,6 +398,8 @@ function showLibrary() {
     "Hours played: " + game.hours;
   document.getElementById("details-completion").textContent =
     "Estimated 100% time: " + game.completionHours + " hours";
+    document.getElementById("details-status").textContent =
+  "Status: " + game.status;
   document.getElementById("details-current-cost").textContent =
     "Current cost per hour: " + currentCost;
   document.getElementById("details-potential-cost").textContent =
@@ -392,6 +418,7 @@ function editGame() {
   document.getElementById("edit-price").value = game.price;
   document.getElementById("edit-hours").value = game.hours;
   document.getElementById("edit-completion-hours").value = game.completionHours;
+  document.getElementById("edit-status").value = game.status;
 
   document.getElementById("details-view").style.display = "none";
   document.getElementById("edit-view").style.display = "block";
@@ -414,6 +441,8 @@ function saveGame() {
     document.getElementById("edit-completion-hours").value
   );
 
+  game.status = document.getElementById("edit-status").value;
+
   localStorage.setItem("games", JSON.stringify(games));
 
   location.reload();
@@ -424,13 +453,15 @@ function saveGame() {
     const price = Number(document.getElementById("purchase-price").value);
     const hours = Number(document.getElementById("hours-played").value);
     const completionHours = Number(document.getElementById("completion-hours").value);
+    const status = document.getElementById("game-status").value;
 
    const game = {
   id: crypto.randomUUID(),
   title: title,
   price: price,
   hours: hours,
-  completionHours: completionHours
+  completionHours: completionHours,
+  status: status
 };
 
     games.push(game);
