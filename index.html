@@ -179,6 +179,9 @@ select {
   <label for="playthrough-end-date">End date</label>
   <input type="date" id="playthrough-end-date">
 
+<label for="playthrough-hours">Hours played in this playthrough</label>
+<input type="number" id="playthrough-hours" placeholder="0" step="0.1">
+  
   <label for="playthrough-status">Status</label>
   <select id="playthrough-status">
     <option value="not-started">Not Started</option>
@@ -252,6 +255,11 @@ select {
         sessions: []
       }
     ];
+      game.playthroughs.forEach(function(playthrough) {
+    if (playthrough.hours === undefined) {
+      playthrough.hours = 0;
+    }
+  });
   }
 });
 
@@ -504,6 +512,7 @@ function displayPlaythroughs(game) {
       <div>
         <h4>Playthrough ${playthrough.number}</h4>
         <p>Status: ${formatStatus(playthrough.status)}</p>
+        <p>Hours: ${playthrough.hours}</p>
         <p>Started: ${startDate}</p>
         <p>Ended: ${endDate}</p>
         <p>Logged sessions: ${playthrough.sessions.length}</p>
@@ -573,11 +582,15 @@ function savePlaythrough() {
   const status =
     document.getElementById("playthrough-status").value;
 
+  const hours =
+  Number(document.getElementById("playthrough-hours").value);
+
   if (selectedPlaythroughId === null) {
     const newPlaythrough = {
       id: crypto.randomUUID(),
       number: game.playthroughs.length + 1,
       status: status,
+      hours: hours,
       startedDate: startedDate || null,
       endedDate: endedDate || null,
       sessions: []
@@ -592,6 +605,7 @@ function savePlaythrough() {
     playthrough.startedDate = startedDate || null;
     playthrough.endedDate = endedDate || null;
     playthrough.status = status;
+    playthrough.hours = hours;
   }
 
   game.status = status;
@@ -626,6 +640,9 @@ function editPlaythrough(playthroughId) {
   document.getElementById("playthrough-end-date").value =
     playthrough.endedDate || "";
 
+  document.getElementById("playthrough-hours").value =
+  playthrough.hours;
+
   document.getElementById("playthrough-status").value =
     playthrough.status;
 
@@ -643,6 +660,8 @@ function startNewPlaythrough() {
     new Date().toISOString().split("T")[0];
 
   document.getElementById("playthrough-end-date").value = "";
+document.getElementById("playthrough-hours").value = 0;
+  
   document.getElementById("playthrough-status").value = "playing";
 
   document.getElementById("details-view").style.display = "none";
