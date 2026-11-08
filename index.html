@@ -27,6 +27,16 @@ input {
   margin-bottom: 8px;
 }
 
+select {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-top: 4px;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+  font-size: 16px;
+}
+    
     .game-title {
   background: none;
   border: none;
@@ -64,6 +74,29 @@ input {
    
 
 <button class="add-game-button" onclick="showAddGame()">+ Add Game</button>
+
+  <label for="sort-games">Sort games by</label>
+
+<select id="sort-games" onchange="sortGames()">
+  <option value="title-asc">Title: A–Z</option>
+  <option value="title-desc">Title: Z–A</option>
+
+  <option value="price-asc">Purchase price: Low–High</option>
+  <option value="price-desc">Purchase price: High–Low</option>
+
+  <option value="hours-desc">Hours played: High–Low</option>
+  <option value="hours-asc">Hours played: Low–High</option>
+
+  <option value="completion-desc">100% estimate: High–Low</option>
+  <option value="completion-asc">100% estimate: Low–High</option>
+
+  <option value="current-cost-desc">Current $/hour: High–Low</option>
+  <option value="current-cost-asc">Current $/hour: Low–High</option>
+
+  <option value="potential-cost-desc">Potential $/hour: High–Low</option>
+  <option value="potential-cost-asc">Potential $/hour: Low–High</option>
+</select>
+  
 <div id="game-list"></div>
   </div>
 
@@ -197,6 +230,111 @@ document.getElementById("potential-cost").textContent =
     `;
   }
 
+function sortGames() {
+  const sortChoice = document.getElementById("sort-games").value;
+  const sortedGames = [...games];
+
+  if (sortChoice === "title-asc") {
+    sortedGames.sort(function(a, b) {
+      return a.title.localeCompare(b.title);
+    });
+  }
+
+  if (sortChoice === "title-desc") {
+    sortedGames.sort(function(a, b) {
+      return b.title.localeCompare(a.title);
+    });
+  }
+
+  if (sortChoice === "price-asc") {
+    sortedGames.sort(function(a, b) {
+      return a.price - b.price;
+    });
+  }
+
+  if (sortChoice === "price-desc") {
+    sortedGames.sort(function(a, b) {
+      return b.price - a.price;
+    });
+  }
+
+  if (sortChoice === "hours-asc") {
+    sortedGames.sort(function(a, b) {
+      return a.hours - b.hours;
+    });
+  }
+
+  if (sortChoice === "hours-desc") {
+    sortedGames.sort(function(a, b) {
+      return b.hours - a.hours;
+    });
+  }
+
+  if (sortChoice === "completion-asc") {
+    sortedGames.sort(function(a, b) {
+      return a.completionHours - b.completionHours;
+    });
+  }
+
+  if (sortChoice === "completion-desc") {
+    sortedGames.sort(function(a, b) {
+      return b.completionHours - a.completionHours;
+    });
+  }
+
+  if (sortChoice === "current-cost-asc") {
+    sortedGames.sort(function(a, b) {
+      const aCost = a.hours > 0 ? a.price / a.hours : Infinity;
+      const bCost = b.hours > 0 ? b.price / b.hours : Infinity;
+
+      return aCost - bCost;
+    });
+  }
+
+  if (sortChoice === "current-cost-desc") {
+    sortedGames.sort(function(a, b) {
+      const aCost = a.hours > 0 ? a.price / a.hours : -1;
+      const bCost = b.hours > 0 ? b.price / b.hours : -1;
+
+      return bCost - aCost;
+    });
+  }
+
+  if (sortChoice === "potential-cost-asc") {
+    sortedGames.sort(function(a, b) {
+      const aCost =
+        a.completionHours > 0 ? a.price / a.completionHours : Infinity;
+      const bCost =
+        b.completionHours > 0 ? b.price / b.completionHours : Infinity;
+
+      return aCost - bCost;
+    });
+  }
+
+  if (sortChoice === "potential-cost-desc") {
+    sortedGames.sort(function(a, b) {
+      const aCost =
+        a.completionHours > 0 ? a.price / a.completionHours : -1;
+      const bCost =
+        b.completionHours > 0 ? b.price / b.completionHours : -1;
+
+      return bCost - aCost;
+    });
+  }
+
+  displayGameList(sortedGames);
+}
+  
+function displayGameList(gamesToDisplay) {
+  const gameList = document.getElementById("game-list");
+
+  gameList.innerHTML = "";
+
+  gamesToDisplay.forEach(function(game) {
+    displayGame(game);
+  });
+}
+  
 function showAddGame() {
   document.getElementById("library-view").style.display = "none";
   document.getElementById("add-view").style.display = "block";
@@ -299,15 +437,15 @@ function saveGame() {
 
     localStorage.setItem("games", JSON.stringify(games));
 
-    displayGame(game);
-    updateSummary();
+    sortGames();
+updateSummary();
     document.getElementById("add-view").style.display = "none";
 document.getElementById("library-view").style.display = "block";
   }
 
   
 
-  games.forEach(displayGame);
+ displayGameList(games);
   updateSummary();
 </script>
 
