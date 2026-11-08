@@ -61,20 +61,30 @@ input {
     <p id="current-cost">Current cost per hour: —</p>
 <p id="potential-cost">Potential cost per hour: —</p>
     
-    <label for="game-title">Title</label>
-<input type="text" id="game-title" placeholder="Enter game title">
-    <label for="purchase-price">Purchase price</label>
-<input type="number" id="purchase-price" placeholder="0.00" step="0.01">
+   
 
-<label for="hours-played">Hours played</label>
-<input type="number" id="hours-played" placeholder="0" step="0.1">
-
-<label for="completion-hours">Estimated hours to 100%</label>
-<input type="number" id="completion-hours" placeholder="0" step="0.1">
-
-<button class="add-game-button" onclick="addGame()">+ Add Game</button>
+<button class="add-game-button" onclick="showAddGame()">+ Add Game</button>
 <div id="game-list"></div>
   </div>
+
+<div class="summary-card" id="add-view" style="display: none;">
+  <h2>Add a Game</h2>
+
+  <label for="game-title">Title</label>
+  <input type="text" id="game-title" placeholder="Enter game title">
+
+  <label for="purchase-price">Purchase price</label>
+  <input type="number" id="purchase-price" placeholder="0.00" step="0.01">
+
+  <label for="hours-played">Hours played</label>
+  <input type="number" id="hours-played" placeholder="0" step="0.1">
+
+  <label for="completion-hours">Estimated hours to 100%</label>
+  <input type="number" id="completion-hours" placeholder="0" step="0.1">
+
+  <button class="add-game-button" onclick="addGame()">Save Game</button>
+  <button onclick="cancelAddGame()">Cancel</button>
+</div>
   
   <div class="summary-card" id="details-view" style="display: none;">
   <button onclick="showLibrary()">← Back to Library</button>
@@ -187,6 +197,16 @@ document.getElementById("potential-cost").textContent =
     `;
   }
 
+function showAddGame() {
+  document.getElementById("library-view").style.display = "none";
+  document.getElementById("add-view").style.display = "block";
+}
+
+function cancelAddGame() {
+  document.getElementById("add-view").style.display = "none";
+  document.getElementById("library-view").style.display = "block";
+}
+  
 function showLibrary() {
   document.getElementById("details-view").style.display = "none";
   document.getElementById("library-view").style.display = "block";
@@ -281,7 +301,11 @@ function saveGame() {
 
     displayGame(game);
     updateSummary();
+    document.getElementById("add-view").style.display = "none";
+document.getElementById("library-view").style.display = "block";
   }
+
+  
 
   games.forEach(displayGame);
   updateSummary();
