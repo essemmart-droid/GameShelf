@@ -194,7 +194,7 @@ select {
 </div>
 
 <div class="summary-card" id="session-add-view" style="display: none;">
-  <h2>Log Session</h2>
+  <h2 id="session-form-title">Log Session</h2>
 
   <p id="session-playthrough-name"></p>
 
@@ -289,6 +289,7 @@ select {
   let games = JSON.parse(localStorage.getItem("games")) || [];
   let selectedGameId = null;
   let selectedPlaythroughId = null;
+  let selectedSessionId = null;
   games.forEach(function(game) {
   if (!game.id) {
     game.id = crypto.randomUUID();
@@ -593,6 +594,13 @@ function displayPlaythroughs(game) {
         <p><strong>${session.date}</strong></p>
         <p>${durationHours} hours</p>
         ${notes}
+        <button onclick="editSession('${playthrough.id}', '${session.id}')">
+  Edit Session
+</button>
+
+<button onclick="deleteSession('${playthrough.id}', '${session.id}')">
+  Delete Session
+</button>
       </div>
     `;
   }).join("")}
@@ -744,6 +752,7 @@ game.playthroughs.forEach(function(playthrough, index) {
 
 function cancelSession() {
   selectedPlaythroughId = null;
+  selectedSessionId = null;
 
   document.getElementById("session-add-view").style.display = "none";
   document.getElementById("details-view").style.display = "block";
@@ -773,6 +782,7 @@ function saveSession() {
     return;
   }
 
+  if (selectedSessionId === null) {
   const session = {
     id: crypto.randomUUID(),
     date: date,
@@ -781,15 +791,89 @@ function saveSession() {
   };
 
   playthrough.sessions.push(session);
+} else {
+  const session = playthrough.sessions.find(function(session) {
+    return session.id === selectedSessionId;
+  });
+
+  session.date = date;
+  session.durationMinutes = Math.round(durationHours * 60);
+  session.notes = notes;
+}
 
   localStorage.setItem("games", JSON.stringify(games));
 
   selectedPlaythroughId = null;
+  selectedSessionId = null;
 
   displayPlaythroughs(game);
 
   document.getElementById("session-add-view").style.display = "none";
   document.getElementById("details-view").style.display = "block";
+}
+
+function deleteSession(playthroughId, sessionId) {
+  const game = games.find(function(game) {
+    return game.id === selectedGameId;
+  });
+
+  const playthrough = game.playthroughs.find(function(playthrough) {
+    return playthrough.id === playthroughId;
+  });
+
+  const session = playthrough.sessions.find(function(session) {
+    return session.id === sessionId;
+  });
+
+  const confirmed = confirm(
+    "Delete the session from " + session.date + "? This cannot be undone."
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  playthrough.sessions = playthrough.sessions.filter(function(session) {
+    return session.id !== sessionId;
+  });
+
+  localStorage.setItem("games", JSON.stringify(games));
+
+  displayPlaythroughs(game);
+}
+  
+function editSession(playthroughId, sessionId) {
+  const game = games.find(function(game) {
+    return game.id === selectedGameId;
+  });
+
+  const playthrough = game.playthroughs.find(function(playthrough) {
+    return playthrough.id === playthroughId;
+  });
+
+  const session = playthrough.sessions.find(function(session) {
+    return session.id === sessionId;
+  });
+
+  selectedPlaythroughId = playthroughId;
+  selectedSessionId = sessionId;
+
+  document.getElementById("session-form-title").textContent =
+    "Edit Session";
+
+  document.getElementById("session-playthrough-name").textContent =
+    game.title + " — Playthrough " + playthrough.number;
+
+  document.getElementById("session-date").value = session.date;
+
+  document.getElementById("session-duration").value =
+    session.durationMinutes / 60;
+
+  document.getElementById("session-notes").value =
+    session.notes || "";
+
+  document.getElementById("details-view").style.display = "none";
+  document.getElementById("session-add-view").style.display = "block";
 }
   
 function showLogSession(playthroughId) {
@@ -802,6 +886,11 @@ function showLogSession(playthroughId) {
   });
 
   selectedPlaythroughId = playthroughId;
+
+  selectedSessionId = null;
+
+document.getElementById("session-form-title").textContent =
+  "Log Session";
 
   document.getElementById("session-playthrough-name").textContent =
     game.title + " — Playthrough " + playthrough.number;
