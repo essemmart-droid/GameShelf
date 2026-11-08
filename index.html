@@ -519,6 +519,10 @@ function displayPlaythroughs(game) {
         <button onclick="editPlaythrough('${playthrough.id}')">
   Edit Playthrough
 </button>
+
+<button onclick="deletePlaythrough('${playthrough.id}')">
+  Delete Playthrough
+</button>
       </div>
     `;
   });
@@ -618,6 +622,32 @@ function savePlaythrough() {
 
   document.getElementById("playthrough-edit-view").style.display = "none";
   document.getElementById("details-view").style.display = "block";
+}
+
+function deletePlaythrough(playthroughId) {
+  const game = games.find(function(game) {
+    return game.id === selectedGameId;
+  });
+
+  const playthrough = game.playthroughs.find(function(playthrough) {
+    return playthrough.id === playthroughId;
+  });
+
+  const confirmed = confirm(
+    "Delete Playthrough " + playthrough.number + "? This cannot be undone."
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  game.playthroughs = game.playthroughs.filter(function(playthrough) {
+    return playthrough.id !== playthroughId;
+  });
+
+  localStorage.setItem("games", JSON.stringify(games));
+
+  displayPlaythroughs(game);
 }
   
 function editPlaythrough(playthroughId) {
