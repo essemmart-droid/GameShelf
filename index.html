@@ -75,11 +75,27 @@ select {
 
 <button class="add-game-button" onclick="showAddGame()">+ Add Game</button>
 
+<label for="filter-status">Show games</label>
+
+<select id="filter-status" onchange="refreshGameList()">
+  <option value="all">All Games</option>
+  <option value="not-started">Not Started</option>
+  <option value="playing">Playing</option>
+  <option value="paused">Paused</option>
+  <option value="dropped">Dropped</option>
+  <option value="finished">Finished</option>
+  <option value="completed">100%</option>
+  <option value="not-completed">Not 100%</option>
+</select>
+  
   <label for="sort-games">Sort games by</label>
 
-<select id="sort-games" onchange="sortGames()">
+<select id="sort-games" onchange="refreshGameList()">
   <option value="title-asc">Title: A–Z</option>
   <option value="title-desc">Title: Z–A</option>
+  
+  <option value="status-asc">Status: A–Z</option>
+<option value="status-desc">Status: Z–A</option>
 
   <option value="price-asc">Purchase price: Low–High</option>
   <option value="price-desc">Purchase price: High–Low</option>
@@ -117,6 +133,7 @@ select {
 
 <label for="game-status">Status</label>
 <select id="game-status">
+  <option value="not-started">Not Started</option>
   <option value="playing">Playing</option>
   <option value="paused">Paused</option>
   <option value="dropped">Dropped</option>
@@ -162,6 +179,7 @@ select {
 
 <label for="edit-status">Status</label>
 <select id="edit-status">
+  <option value="not-started">Not Started</option>
   <option value="playing">Playing</option>
   <option value="paused">Paused</option>
   <option value="dropped">Dropped</option>
@@ -191,6 +209,18 @@ select {
 
 localStorage.setItem("games", JSON.stringify(games));
 
+  function formatStatus(status) {
+  const statusNames = {
+    "not-started": "Not Started",
+    "playing": "Playing",
+    "paused": "Paused",
+    "dropped": "Dropped",
+    "finished": "Finished",
+    "completed": "100%"
+  };
+
+  return statusNames[status] || "Unknown";
+}
 
   function updateSummary() {
   const gameCount = games.length;
@@ -248,15 +278,34 @@ document.getElementById("potential-cost").textContent =
         <p>Purchase price: $${game.price.toFixed(2)}</p>
         <p>Hours played: ${game.hours}</p>
         <p>Estimated 100% time: ${game.completionHours} hours</p>
+        <p>Status: ${formatStatus(game.status)}</p>
         <p>Current cost per hour: ${currentCost}</p>
         <p>Potential cost per hour: ${potentialCost}</p>
       </div>
     `;
   }
 
-function sortGames() {
+function refreshGameList() {
+  const filterChoice = document.getElementById("filter-status").value;
+
+  let filteredGames = games;
+
+  if (filterChoice === "not-completed") {
+    filteredGames = games.filter(function(game) {
+      return game.status !== "completed";
+    });
+  } else if (filterChoice !== "all") {
+    filteredGames = games.filter(function(game) {
+      return game.status === filterChoice;
+    });
+  }
+
+  sortGames(filteredGames);
+}
+  
+function sortGames(gamesToSort = games) {
   const sortChoice = document.getElementById("sort-games").value;
-  const sortedGames = [...games];
+  const sortedGames = [...gamesToSort];
 
   if (sortChoice === "title-asc") {
     sortedGames.sort(function(a, b) {
@@ -270,6 +319,18 @@ function sortGames() {
     });
   }
 
+if (sortChoice === "status-asc") {
+  sortedGames.sort(function(a, b) {
+    return formatStatus(a.status).localeCompare(formatStatus(b.status));
+  });
+}
+
+if (sortChoice === "status-desc") {
+  sortedGames.sort(function(a, b) {
+    return formatStatus(b.status).localeCompare(formatStatus(a.status));
+  });
+}
+  
   if (sortChoice === "price-asc") {
     sortedGames.sort(function(a, b) {
       return a.price - b.price;
@@ -398,8 +459,8 @@ function showLibrary() {
     "Hours played: " + game.hours;
   document.getElementById("details-completion").textContent =
     "Estimated 100% time: " + game.completionHours + " hours";
-    document.getElementById("details-status").textContent =
-  "Status: " + game.status;
+   document.getElementById("details-status").textContent =
+  "Status: " + formatStatus(game.status);
   document.getElementById("details-current-cost").textContent =
     "Current cost per hour: " + currentCost;
   document.getElementById("details-potential-cost").textContent =
@@ -468,7 +529,7 @@ function saveGame() {
 
     localStorage.setItem("games", JSON.stringify(games));
 
-    sortGames();
+ refreshGameList();
 updateSummary();
     document.getElementById("add-view").style.display = "none";
 document.getElementById("library-view").style.display = "block";
@@ -476,7 +537,7 @@ document.getElementById("library-view").style.display = "block";
 
   
 
- displayGameList(games);
+refreshGameList();
   updateSummary();
 </script>
 
