@@ -21,6 +21,7 @@
   border-radius: 8px;
   font-size: 16px;
 }
+    <div id="game-list"></div>
 </style>
 </head>
 
@@ -43,6 +44,10 @@
   <script>
   function addGame() {
   const title = document.getElementById("game-title").value;
+  const gameList = document.getElementById("game-list");
+
+  gameList.innerHTML = `<p>${title}</p>`;
+}
 
   alert(title);
 }
