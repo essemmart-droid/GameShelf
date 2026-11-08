@@ -170,6 +170,32 @@ select {
     
 </div>
 
+<div class="summary-card" id="playthrough-edit-view" style="display: none;">
+  <h2 id="playthrough-form-title">Playthrough</h2>
+
+  <label for="playthrough-start-date">Start date</label>
+  <input type="date" id="playthrough-start-date">
+
+  <label for="playthrough-end-date">End date</label>
+  <input type="date" id="playthrough-end-date">
+
+  <label for="playthrough-status">Status</label>
+  <select id="playthrough-status">
+    <option value="not-started">Not Started</option>
+    <option value="playing">Playing</option>
+    <option value="paused">Paused</option>
+    <option value="dropped">Dropped</option>
+    <option value="finished">Finished</option>
+    <option value="completed">100%</option>
+  </select>
+
+  <button class="add-game-button" onclick="savePlaythrough()">
+    Save Playthrough
+  </button>
+
+  <button onclick="cancelPlaythroughEdit()">Cancel</button>
+</div>
+  
   <div class="summary-card" id="edit-view" style="display: none;">
   <h2>Edit Game</h2>
 
@@ -205,6 +231,7 @@ select {
 <script>
   let games = JSON.parse(localStorage.getItem("games")) || [];
   let selectedGameId = null;
+  let selectedPlaythroughId = null;
   games.forEach(function(game) {
   if (!game.id) {
     game.id = crypto.randomUUID();
@@ -480,6 +507,9 @@ function displayPlaythroughs(game) {
         <p>Started: ${startDate}</p>
         <p>Ended: ${endDate}</p>
         <p>Logged sessions: ${playthrough.sessions.length}</p>
+        <button onclick="editPlaythrough('${playthrough.id}')">
+  Edit Playthrough
+</button>
       </div>
     `;
   });
@@ -522,26 +552,101 @@ displayPlaythroughs(game);
   document.getElementById("details-view").style.display = "block";
 }
 
-function startNewPlaythrough() {
+function cancelPlaythroughEdit() {
+  selectedPlaythroughId = null;
+
+  document.getElementById("playthrough-edit-view").style.display = "none";
+  document.getElementById("details-view").style.display = "block";
+}
+  
+function savePlaythrough() {
   const game = games.find(function(game) {
     return game.id === selectedGameId;
   });
 
-  const newPlaythrough = {
-    id: crypto.randomUUID(),
-    number: game.playthroughs.length + 1,
-    status: "playing",
-    startedDate: new Date().toISOString().split("T")[0],
-    endedDate: null,
-    sessions: []
-  };
+  const startedDate =
+    document.getElementById("playthrough-start-date").value;
 
-  game.playthroughs.push(newPlaythrough);
-  game.status = "playing";
+  const endedDate =
+    document.getElementById("playthrough-end-date").value;
+
+  const status =
+    document.getElementById("playthrough-status").value;
+
+  if (selectedPlaythroughId === null) {
+    const newPlaythrough = {
+      id: crypto.randomUUID(),
+      number: game.playthroughs.length + 1,
+      status: status,
+      startedDate: startedDate || null,
+      endedDate: endedDate || null,
+      sessions: []
+    };
+
+    game.playthroughs.push(newPlaythrough);
+  } else {
+    const playthrough = game.playthroughs.find(function(playthrough) {
+      return playthrough.id === selectedPlaythroughId;
+    });
+
+    playthrough.startedDate = startedDate || null;
+    playthrough.endedDate = endedDate || null;
+    playthrough.status = status;
+  }
+
+  game.status = status;
 
   localStorage.setItem("games", JSON.stringify(games));
 
+  selectedPlaythroughId = null;
+
   displayPlaythroughs(game);
+
+  document.getElementById("playthrough-edit-view").style.display = "none";
+  document.getElementById("details-view").style.display = "block";
+}
+  
+function editPlaythrough(playthroughId) {
+  const game = games.find(function(game) {
+    return game.id === selectedGameId;
+  });
+
+  const playthrough = game.playthroughs.find(function(playthrough) {
+    return playthrough.id === playthroughId;
+  });
+
+  selectedPlaythroughId = playthroughId;
+
+  document.getElementById("playthrough-form-title").textContent =
+    "Edit Playthrough " + playthrough.number;
+
+  document.getElementById("playthrough-start-date").value =
+    playthrough.startedDate || "";
+
+  document.getElementById("playthrough-end-date").value =
+    playthrough.endedDate || "";
+
+  document.getElementById("playthrough-status").value =
+    playthrough.status;
+
+  document.getElementById("details-view").style.display = "none";
+  document.getElementById("playthrough-edit-view").style.display = "block";
+}
+  
+function startNewPlaythrough() {
+  selectedPlaythroughId = null;
+
+  document.getElementById("playthrough-form-title").textContent =
+    "Start New Playthrough";
+
+  document.getElementById("playthrough-start-date").value =
+    new Date().toISOString().split("T")[0];
+
+  document.getElementById("playthrough-end-date").value = "";
+  document.getElementById("playthrough-status").value = "playing";
+
+  document.getElementById("details-view").style.display = "none";
+  document.getElementById("playthrough-edit-view").style.display = "block";
 }
   
 function editGame() {
