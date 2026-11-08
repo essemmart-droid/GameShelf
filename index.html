@@ -26,6 +26,17 @@ input {
   box-sizing: border-box;
   margin-bottom: 8px;
 }
+
+    .game-title {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-weight: bold;
+  color: #2563eb;
+  cursor: pointer;
+}
+    
     .add-game-button {
   background-color: #2563eb;
   color: white;
@@ -127,7 +138,10 @@ document.getElementById("potential-cost").textContent =
 
     gameList.innerHTML += `
       <div>
-        <h3>${game.title}</h3>
+        <h3>
+  <button class="game-title" onclick="openGame('${game.id}')">${game.title}</button>
+</h3>
+
         <p>Purchase price: $${game.price.toFixed(2)}</p>
         <p>Hours played: ${game.hours}</p>
         <p>Estimated 100% time: ${game.completionHours} hours</p>
@@ -137,6 +151,13 @@ document.getElementById("potential-cost").textContent =
     `;
   }
 
+  function openGame(gameId) {
+  const game = games.find(function(game) {
+    return game.id === gameId;
+  });
+
+  alert("You opened " + game.title);
+}
   function addGame() {
     const title = document.getElementById("game-title").value;
     const price = Number(document.getElementById("purchase-price").value);
