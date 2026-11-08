@@ -131,6 +131,9 @@ select {
   <label for="completion-hours">Estimated hours to 100%</label>
   <input type="number" id="completion-hours" placeholder="0" step="0.1">
 
+<label for="started-date">Playthrough start date</label>
+<input type="date" id="started-date">
+  
 <label for="game-status">Status</label>
 <select id="game-status">
   <option value="not-started">Not Started</option>
@@ -160,6 +163,8 @@ select {
 
 <h3>Playthroughs</h3>
 <div id="playthrough-list"></div>
+
+    <button class="add-game-button" onclick="startNewPlaythrough()">Start New Playthrough</button>
     
     <button class="add-game-button" onclick="editGame()">Edit Game</button>
     
@@ -517,6 +522,28 @@ displayPlaythroughs(game);
   document.getElementById("details-view").style.display = "block";
 }
 
+function startNewPlaythrough() {
+  const game = games.find(function(game) {
+    return game.id === selectedGameId;
+  });
+
+  const newPlaythrough = {
+    id: crypto.randomUUID(),
+    number: game.playthroughs.length + 1,
+    status: "playing",
+    startedDate: new Date().toISOString().split("T")[0],
+    endedDate: null,
+    sessions: []
+  };
+
+  game.playthroughs.push(newPlaythrough);
+  game.status = "playing";
+
+  localStorage.setItem("games", JSON.stringify(games));
+
+  displayPlaythroughs(game);
+}
+  
 function editGame() {
   const game = games.find(function(game) {
     return game.id === selectedGameId;
@@ -561,6 +588,7 @@ function saveGame() {
     const price = Number(document.getElementById("purchase-price").value);
     const hours = Number(document.getElementById("hours-played").value);
     const completionHours = Number(document.getElementById("completion-hours").value);
+    const startedDate = document.getElementById("started-date").value;
     const status = document.getElementById("game-status").value;
 
    const game = {
@@ -575,7 +603,7 @@ function saveGame() {
       id: crypto.randomUUID(),
       number: 1,
       status: status,
-      startedDate: null,
+      startedDate: startedDate || null,
       endedDate: null,
       sessions: []
     }
