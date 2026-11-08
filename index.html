@@ -69,7 +69,12 @@ input {
   const price = Number(document.getElementById("purchase-price").value);
   const hours = Number(document.getElementById("hours-played").value);
   const completionHours = Number(document.getElementById("completion-hours").value);
-
+const game = {
+  title: title,
+  price: price,
+  hours: hours,
+  completionHours: completionHours
+};
   const gameList = document.getElementById("game-list");
 
   let currentCost = "Not played yet";
